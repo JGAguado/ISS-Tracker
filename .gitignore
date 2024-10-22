@@ -1,4 +1,4 @@
-/kubernetes/secrets.yaml
+/kubernetes/my_secrets.yaml
 /iss_tracker/__pycache__/*.pyc
 /tracking/__pycache__/*.pyc
 /tracking/migrations/__pycache__/*.pyc
