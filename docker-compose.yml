@@ -14,8 +14,9 @@ services:
       - app-network
 
   web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
+#    build: .
+    image: jongaguado/iss-tracker:latest  # Replace with your Django image
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
@@ -28,6 +29,17 @@ services:
       - DJANGO_DB_PORT=5432
     depends_on:
       - db
+      - flask
+    networks:
+      - app-network
+
+  flask:
+#    build:
+#      context: ./flask_app  # Path to Flask Dockerfile
+    image: jongaguado/flask-iss-speed:latest  # Replace with your Flask image
+    command: python app.py  # Command to start the Flask app
+    ports:
+      - "5000:5000"
     networks:
       - app-network
 

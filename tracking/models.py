@@ -8,3 +8,4 @@ class ISSData(models.Model):
     azimuth = models.FloatField()
     elevation = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    iss_speed = models.FloatField(null=True)
