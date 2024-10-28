@@ -58,8 +58,16 @@ def track_iss_api(request):
             "prev_timestamp": last_data.timestamp.isoformat()  # Use your ISO formatted timestamp
         }
 
-        response = requests.post(url, json=data)
-        speed_data = response.json()
+        speed_data = {'speed': None}
+        try:
+            response = requests.post(url, json=data)
+            speed_data = response.json()
+        except requests.exceptions.Timeout as e:
+            print(e)
+        except requests.exceptions.TooManyRedirects as e:
+            print(e)
+        except requests.exceptions.RequestException as e:
+            print(e)
     else:
         speed_data = {'speed': None, 'message': 'No previous data available to calculate speed.'}
 
@@ -119,8 +127,17 @@ def track_iss(request):
                     "current_longitude": iss_longitude,
                     "prev_timestamp": last_data.timestamp.isoformat()  # Use your ISO formatted timestamp
                 }
+                speed_data = {'speed': None}
+                try:
+                    response = requests.post(url, json=data)
+                    speed_data = response.json()
+                except requests.exceptions.Timeout as e:
+                    print(e)
+                except requests.exceptions.TooManyRedirects as e:
+                    print(e)
+                except requests.exceptions.RequestException as e:
+                    print(e)
 
-                response = requests.post(url, json=data)
                 speed_data = response.json()
             else:
                 speed_data = {'speed': None, 'message': 'No previous data available to calculate speed.'}
