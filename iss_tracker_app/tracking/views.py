@@ -48,19 +48,20 @@ def track_iss_api(request):
     if last_data:
         # Call Flask microservice to calculate speed
         # url = 'http://127.0.0.1:5000/calculate-speed'
-        url = 'http://flask:5000/calculate-speed'
+        url = 'http://iss-speed:5000/calculate-speed'
 
-        data = {
+        params = {
             "previous_latitude": last_data.iss_latitude,
             "previous_longitude": last_data.iss_longitude,
             "current_latitude": iss_latitude,
             "current_longitude": iss_longitude,
-            "prev_timestamp": last_data.timestamp.isoformat()  # Use your ISO formatted timestamp
+            "prev_timestamp": last_data.timestamp.isoformat()
         }
 
         speed_data = {'speed': None}
+
         try:
-            response = requests.get(url, json=data)
+            response = requests.get(url, params=params)
             speed_data = response.json()
         except requests.exceptions.Timeout as e:
             print(e)
@@ -118,7 +119,7 @@ def track_iss(request):
             if last_data:
                 # Call Flask microservice to calculate speed
                 # url = 'http://127.0.0.1:5000/calculate-speed'
-                url = 'http://iss_speed:5000/calculate-speed'
+                url = 'http://iss-speed:5000/calculate-speed'
 
                 params = {
                     "previous_latitude": last_data.iss_latitude,
@@ -132,6 +133,7 @@ def track_iss(request):
 
                 try:
                     response = requests.get(url, params=params)
+                    speed_data = response.json()
                 except requests.exceptions.Timeout as e:
                     print(e)
                 except requests.exceptions.TooManyRedirects as e:
@@ -139,7 +141,6 @@ def track_iss(request):
                 except requests.exceptions.RequestException as e:
                     print(e)
 
-                speed_data = response.json()
             else:
                 speed_data = {'speed': None, 'message': 'No previous data available to calculate speed.'}
 

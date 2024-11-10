@@ -1,20 +1,36 @@
-# django-deployment.yaml
+# iss-tracker.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: iss-tracker-service
+spec:
+  selector:
+    app: iss-tracker-app
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: django-app
+  name: iss-tracker-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: django-app
+      app: iss-tracker-app
   template:
     metadata:
       labels:
-        app: django-app
+        app: iss-tracker-app
     spec:
       containers:
-        - name: django-app
+        - name: iss-tracker-app
           image: jongaguado/iss-tracker:latest
           ports:
             - containerPort: 8000
@@ -63,18 +79,3 @@ spec:
               value: postgres-service
             - name: DJANGO_DB_PORT
               value: "5432"
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: django-service
-spec:
-  selector:
-    app: django-app
-  ports:
-    - protocol: TCP
-      port: 8000
-      targetPort: 8000
-  type: LoadBalancer

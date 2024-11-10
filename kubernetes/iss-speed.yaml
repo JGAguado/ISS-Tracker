@@ -1,0 +1,33 @@
+# iss-speed.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: iss-speed
+spec:
+  ports:
+  - port: 5000
+  selector:
+    app: iss-speed
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iss-speed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iss-speed
+  template:
+    metadata:
+      labels:
+        app: iss-speed
+    spec:
+      containers:
+      - name: iss-speed
+        image: jongaguado/iss-speed:latest
+        ports:
+        - containerPort: 5000
