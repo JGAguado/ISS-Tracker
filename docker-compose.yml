@@ -14,7 +14,8 @@ services:
       - app-network
 
   web:
-    image: jongaguado/iss-tracker:latest
+#    image: jongaguado/iss-tracker:latest
+    build: .
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
@@ -28,13 +29,14 @@ services:
       - DJANGO_DB_PORT=5432
     depends_on:
       - db
-      - flask
+      - iss_speed
     networks:
       - app-network
 
-  flask:
+  iss_speed:
 
-    image: jongaguado/flask-iss-speed:latest
+#    image: jongaguado/flask-iss-speed:latest
+    build: ./iss_speed
     command: python app.py
     ports:
       - "5000:5000"

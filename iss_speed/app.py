@@ -13,18 +13,21 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c  # Distance in kilometers
 
-@app.route('/calculate-speed', methods=['POST'])
+@app.route('/calculate-speed', methods=['GET'])
 def calculate_speed():
-    data = request.get_json()
-    print(data)
-    prev_lat = float(data['previous_latitude'])
-    prev_lon = float(data['previous_longitude'])
-    curr_lat = float(data['current_latitude'])
-    curr_lon = float(data['current_longitude'])
+    # Extracting query parameters from the URL
+    try:
+        prev_lat = float(request.args.get('previous_latitude'))
+        prev_lon = float(request.args.get('previous_longitude'))
+        curr_lat = float(request.args.get('current_latitude'))
+        curr_lon = float(request.args.get('current_longitude'))
+        prev_timestamp = datetime.fromisoformat(request.args.get('prev_timestamp'))
+    except (TypeError, ValueError) as e:
+        return jsonify({'error': 'Invalid or missing parameter(s)'}), 400
 
 
     # Parse the timestamps
-    prev_timestamp = datetime.fromisoformat(data['prev_timestamp'])
+    # prev_timestamp = datetime.fromisoformat(data['prev_timestamp'])
     current_timestamp = datetime.now(timezone.utc)  # Use server time to match Django's timezone.now()
 
     # Calculate time difference in seconds
