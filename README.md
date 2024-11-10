@@ -23,23 +23,24 @@ Special thanks to Open Notify for providing the ISS location data for free.
 
 ## Project Structure
 
-### 1. Django App Structure
+### 1. Folders and files
 
-- **`iss_tracker/`**: The main project folder containing the settings, URLs, and WSGI files.
-    - **`settings.py`**: Contains configuration settings for the project such as installed apps, middleware, and database settings.
-    - **`urls.py`**: Defines the routes for the project.
-    - **`wsgi.py`**: Entry point for WSGI servers to serve the project.
+- **`iss_tracker_app/`**: Contains the flask server that computes the ISS speed.
+  - **`iss_tracker/`**: The main project folder containing the settings, URLs, and WSGI files.
+      - **`settings.py`**: Contains configuration settings for the project such as installed apps, middleware, and database settings.
+      - **`urls.py`**: Defines the routes for the project.
+      - **`wsgi.py`**: Entry point for WSGI servers to serve the project.
 
-- **`tracking/`**: Contains the core logic for the tracking system.
-    - **`models.py`**: Defines the `ISSData` model, which stores user and ISS coordinates along with the computed azimuth and elevation.
-    - **`views.py`**: Contains the business logic to handle user input, make external API requests to Open Notify, compute azimuth and elevation, and render or return the data.
-        - **`compute_azimuth_elevation`**: Computes the azimuth and elevation based on the geographical coordinates from the ISS, with respect to the user.
-        - **`track_iss`**: Renders a form to receive user input and save into a Postgres DDBB the inquiry and the results.
-        - **`track_iss_api`**: Provides a REST API endpoint to compute the azimuth and elevation based on user coordinates and ISS position.
-    - **`forms.py`**: Defines the `UserLocationForm` that receives user input (latitude and longitude).
-    - **`templates/`**: Contains the HTML files for rendering the form and result pages.
+  - **`tracking/`**: Contains the core logic for the tracking system.
+      - **`models.py`**: Defines the `ISSData` model, which stores user and ISS coordinates along with the computed azimuth and elevation.
+      - **`views.py`**: Contains the business logic to handle user input, make external API requests to Open Notify, compute azimuth and elevation, and render or return the data.
+          - **`compute_azimuth_elevation`**: Computes the azimuth and elevation based on the geographical coordinates from the ISS, with respect to the user.
+          - **`track_iss`**: Renders a form to receive user input and save into a Postgres DDBB the inquiry and the results.
+          - **`track_iss_api`**: Provides a REST API endpoint to compute the azimuth and elevation based on user coordinates and ISS position.
+      - **`forms.py`**: Defines the `UserLocationForm` that receives user input (latitude and longitude).
+      - **`templates/`**: Contains the HTML files for rendering the form and result pages.
 
-- **`flask_app/`**: Contains the flask server that computes the ISS speed.
+- **`iss_speed/`**: Contains the flask server that computes the ISS speed.
     - **`app.py`**: Receives the POST call, containing the previous and the current coordinates, correspondly timestampted and computes the average speed during that timeframe.
 
 
@@ -71,20 +72,13 @@ This is the REST API that the ISS Speed flask server application offers to allow
 It's only used internally for allowing the interface between the ISS tracker main application (on django) and the flask server.
 
   - **Endpoint**: `/calculate-speed`
-  - **Request Method**: `POST`
+  - **Request Method**: `GET`
   - **Parameters**: `previous_latitude`, `previous_longitude`, `current_latitude`, `current_longitude`, `prev_timestamp`  (all are required)
   - **Response**: JSON response with the ISS speed.
   - **Example request**:
   ```
-  curl -X POST http://flask:5000/calculate-speed \
-  -H "Content-Type: application/json" \
-  -d '{
-    "previous_latitude": 34.0522,
-    "previous_longitude": -118.2437,
-    "current_latitude": 36.1699,
-    "current_longitude": -115.1398,
-    "prev_timestamp": "2024-10-24T12:00:00"  # Use your ISO formatted timestamp
-  }
+  curl -X GET "http://iss-speed:5000/calculate-speed?previous_latitude=40.7128&previous_longitude=-74.0060&current_latitude=34.0522&current_longitude=-118.2437&prev_timestamp=2024-10-24T16:21:20
+"
   ```
   - **Example response (JSON format)**:
   ```
@@ -174,7 +168,7 @@ the *container* app.
 
 ```
 url = 'http://127.0.0.1:5000/calculate-speed'
-# url = 'http://flask:5000/calculate-speed'
+# url = 'http://iss-speed:5000/calculate-speed'
 ```
 
 #### Set Up PostgreSQL
@@ -216,14 +210,14 @@ Alternatively, each of the containers from the previous steps could be built up
 ```
 docker build -t iss-tracker .
 cd flask_app
-docker build -t lask-iss-speed .
+docker build -t iss-speed .
 ```
 
 Or even be pulled from Docker Hub
 
 ```
 docker pull jongaguado/iss-tracker:latest
-docker pull jongaguado/lask-iss-speed:latest
+docker pull jongaguado/iss-speed:latest
 ```
 
 In this case you will need to apply migrations in Docker manually:
@@ -236,7 +230,7 @@ And then run the Docker containers:
 
 ```
 docker run -d -p 8000:8000 jongaguado/iss-tracker
-docker run -d -p 5000:5000 jongaguado/lask-iss-speed
+docker run -d -p 5000:5000 jongaguado/iss-speed
 ```
 
 ### 3. Kubernetes Deployment
@@ -266,19 +260,19 @@ kubectl apply -f secrets.yaml
 2. **Deploy PostgreSQL Database, PV & PVC, and it's service:**
 
 ```
-kubectl apply -f postgres-deployment.yaml
+kubectl apply -f database-deployment.yaml
 ```
 
 3. **Deploy Django Application and it's service:**
 
 ```
-kubectl apply -f django-deployment.yaml
+kubectl apply -f iss-tracker.yaml
 ```
 
 4. **Deploy Flask Application and it's service:**
 
 ```
-kubectl apply -f flask-deployment.yaml
+kubectl apply -f iss-speed.yaml
 ```
 
 
